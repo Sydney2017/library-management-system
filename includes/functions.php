@@ -20,17 +20,71 @@ function sanitize($data) {
     return htmlspecialchars(strip_tags(trim($data)));
 }
 
-function calculateFine($due_date) {
+function debugFineCalculation($due_date) {
     $today = time();
     $due = strtotime($due_date);
-    $days_late = floor(($today - $due) / (60 * 60 * 24));
     
-    if ($days_late > 0) {
-        return $days_late * 10; // R10 per day
-    }
-    return 0;
+    echo "Due Date: " . date('Y-m-d', $due) . "<br>";
+    echo "Today: " . date('Y-m-d', $today) . "<br>";
+    echo "Days Late: " . floor(($today - $due) / (60 * 60 * 24)) . "<br>";
+    echo "Fine: R" . calculateFine($due_date) . "<br>";
 }
 
+
+// Notification Functions
+// function getNewReservationsCount($db) {
+//     // Check last view time (reset daily)
+//     $last_view_date = $_SESSION['reservations_last_viewed'] ?? null;
+//     $today = date('Y-m-d');
+    
+//     // If already viewed today, no notifications
+//     if ($last_view_date === $today) {
+//         return 0;
+//     }
+    
+//     $query = "SELECT COUNT(*) as count FROM reservations 
+//               WHERE status = 'active' 
+//               AND created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+//     $stmt = $db->query($query);
+//     $result = $stmt->fetch(PDO::FETCH_ASSOC);
+//     return $result['count'];
+// }
+
+// function markReservationsAsViewed() {
+//     $_SESSION['reservations_last_viewed'] = date('Y-m-d');
+// }
+
+
+// Notification Functions
+function getNewReservationsCount($db) {
+    // Get the last time admin viewed reservations
+    $last_view_time = $_SESSION['reservations_last_viewed'] ?? null;
+    
+    // If never viewed, show all recent reservations
+    if (!$last_view_time) {
+        $query = "SELECT COUNT(*) as count FROM reservations 
+                  WHERE status = 'active' 
+                  AND created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+        $stmt = $db->query($query);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['count'];
+    }
+    
+    // If viewed before, only show reservations made AFTER last view
+    $query = "SELECT COUNT(*) as count FROM reservations 
+              WHERE status = 'active' 
+              AND created_at > :last_view_time";
+    $stmt = $db->prepare($query);
+    $stmt->bindParam(':last_view_time', $last_view_time);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result['count'];
+}
+
+function markReservationsAsViewed() {
+    // Store the exact time when reservations were viewed
+    $_SESSION['reservations_last_viewed'] = date('Y-m-d H:i:s');
+}
 
 // Notification functuions
 

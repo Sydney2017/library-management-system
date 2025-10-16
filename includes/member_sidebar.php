@@ -53,7 +53,7 @@
         <hr class="border-secondary my-3">
 
         <!-- Quick Actions -->
-        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-white">
+        <!-- <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-white">
             <span>Quick Access</span>
             <i class="bi bi-stars"></i>
         </h6>
@@ -78,7 +78,7 @@
             </li>
         </ul>
 
-        <hr class="border-secondary my-3">
+        <hr class="border-secondary my-3"> -->
 
         <!-- User Info -->
         <div class="px-3 py-2">

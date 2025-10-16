@@ -206,6 +206,23 @@ $books = $books_stmt->fetchAll(PDO::FETCH_ASSOC);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <link href="../css/style.css" rel="stylesheet">
+
+    <style>
+    main.col-md-9 {
+        height: calc(100vh - 56px);
+        overflow-y: auto;
+    }
+    
+    .sidebar {
+        height: calc(100vh - 56px);
+        overflow-y: auto;
+    }
+    
+    .status-badge {
+        font-size: 0.8em;
+        padding: 0.4em 0.6em;
+    }
+    </style>
 </head>
 <body>
     <?php include '../includes/navbar.php'; ?>

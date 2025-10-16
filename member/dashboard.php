@@ -59,13 +59,20 @@ $pending_fines = $fines_stmt->fetchAll(PDO::FETCH_ASSOC);
     <link href="../css/style.css" rel="stylesheet">
 
     <style>
-
-
-
-
-
-
-
+    main.col-md-9 {
+        height: calc(100vh - 56px);
+        overflow-y: auto;
+    }
+    
+    .sidebar {
+        height: calc(100vh - 56px);
+        overflow-y: auto;
+    }
+    
+    .status-badge {
+        font-size: 0.8em;
+        padding: 0.4em 0.6em;
+    }
     </style>
 </head>
 <body>

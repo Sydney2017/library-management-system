@@ -60,6 +60,23 @@ $monthly_stats = $db->query("
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
     <link href="../css/style.css" rel="stylesheet">
+
+    <style>
+    main.col-md-9 {
+        height: calc(100vh - 56px);
+        overflow-y: auto;
+    }
+    
+    .sidebar {
+        height: calc(100vh - 56px);
+        overflow-y: auto;
+    }
+    
+    .status-badge {
+        font-size: 0.8em;
+        padding: 0.4em 0.6em;
+    }
+    </style>
     
     <!-- Add Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -284,7 +301,7 @@ $monthly_stats = $db->query("
                     datasets: [{
                         label: 'Book Loans',
                         data: [<?php echo implode(',', array_column($reversed_stats, 'loans_count')); ?>],
-                        backgroundColor: 'rgb(44, 62, 80);'
+                        backgroundColor: '#2c3e50'
                     }]
                 },
                 options: {

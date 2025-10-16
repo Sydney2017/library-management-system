@@ -10,6 +10,36 @@ if (!isLoggedIn() || (!isAdmin() && !isLibrarian())) {
 $database = new Database();
 $db = $database->getConnection();
 
+function calculateFine($due_date, $return_date = null) {
+    // If no due date provided, return 0
+    if (!$due_date) {
+        return 0;
+    }
+    
+    $return_date = $return_date ?: date('Y-m-d');
+    
+    // Convert to DateTime objects for accurate calculation
+    $due_obj = new DateTime($due_date);
+    $return_obj = new DateTime($return_date);
+    
+    // If return date is on or before due date, no fine
+    if ($return_obj <= $due_obj) {
+        return 0;
+    }
+    
+    // Calculate days late
+    $interval = $return_obj->diff($due_obj);
+    $days_late = $interval->days;
+    
+    // Only charge for days actually late
+    if ($days_late < 1) {
+        return 0;
+    }
+    
+    // R10 per day
+    return $days_late * 10;
+}
+
 // Check out book
 if (isset($_POST['checkout_book'])) {
     $book_id = sanitize($_POST['book_id']);
@@ -93,7 +123,6 @@ if (isset($_POST['checkout_book'])) {
 // Check in book
 if (isset($_POST['checkin_book'])) {
     $loan_id = sanitize($_POST['loan_id']);
-
     $return_date = date('Y-m-d');
     
     // Get loan details for fine calculation
@@ -102,7 +131,17 @@ if (isset($_POST['checkin_book'])) {
     $loan_details->execute();
     $loan = $loan_details->fetch(PDO::FETCH_ASSOC);
 
-    $fine_amount = calculateFine($loan['due_date']);
+    // Calculate fine and days late properly
+    $due_obj = new DateTime($loan['due_date']);
+    $return_obj = new DateTime($return_date);
+    $days_late = 0;
+    
+    if ($return_obj > $due_obj) {
+        $interval = $return_obj->diff($due_obj);
+        $days_late = $interval->days;
+    }
+    
+    $fine_amount = $days_late * 10; // R10 per day
 
     try {
         $db->beginTransaction();
@@ -125,13 +164,13 @@ if (isset($_POST['checkin_book'])) {
                 $fine_stmt->bindParam(':loan_id', $loan_id);
                 $fine_stmt->bindParam(':member_id', $loan['member_id']);
                 $fine_stmt->bindParam(':amount', $fine_amount);
-                $reason = "Late return - " . floor($fine_amount / 2) . " days overdue";
+                $reason = "Late return - " . $days_late . " days overdue";
                 $fine_stmt->bindParam(':reason', $reason);
                 $fine_stmt->execute();
             }
 
             $db->commit();
-            $_SESSION['success'] = "Book checked in successfully!" . ($fine_amount > 0 ? " Fine of R$fine_amount applied." : "");
+            $_SESSION['success'] = "Book checked in successfully!" . ($fine_amount > 0 ? " Fine of R$fine_amount applied for $days_late days late." : "");
         } else {
             $db->rollBack();
             $_SESSION['error'] = "Failed to check in book.";
@@ -233,7 +272,8 @@ $active_members = $members_stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <?php 
                                                     echo $loan['due_date']; 
                                                     if (strtotime($loan['due_date']) < time()) {
-                                                        echo ' <span class="badge bg-danger">Overdue</span>';
+                                                        $days_late = floor((time() - strtotime($loan['due_date'])) / (60 * 60 * 24));
+                                                        echo ' <span class="badge bg-danger">' . $days_late . ' days overdue</span>';
                                                     }
                                                     ?>
                                                 </td>
@@ -267,7 +307,7 @@ $active_members = $members_stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <li><strong>3-Day Collection:</strong> Reserved books must be collected within 3 days</li>
                                 <li><strong>No Walk-in Checkouts:</strong> Only reserved members can borrow books</li>
                                 <li><strong>14-Day Loan Period:</strong> Standard borrowing period is 14 days</li>
-                                <li><strong>Fine System:</strong> R2 per day for overdue books</li>
+                                <li><strong>Fine System:</strong> R10 per day for overdue books</li>
                                 <li><strong>Blocked Access:</strong> Members with pending fines cannot borrow books</li>
                             </ul>
                         </div>

@@ -10,6 +10,10 @@ if (!isLoggedIn() || (!isAdmin() && !isLibrarian())) {
 $database = new Database();
 $db = $database->getConnection();
 
+// MARK RESERVATIONS AS VIEWED - ADD THIS LINE
+markReservationsAsViewed();
+
+
 // Automatically update expired reservations
 $auto_expire_query = "UPDATE reservations 
                      SET status = 'expired' 
