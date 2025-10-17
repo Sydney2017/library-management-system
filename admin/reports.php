@@ -62,12 +62,8 @@ $monthly_stats = $db->query("
     <link href="../css/style.css" rel="stylesheet">
 
     <style>
+    /* Simple scroll fix for web view */
     main.col-md-9 {
-        height: calc(100vh - 56px);
-        overflow-y: auto;
-    }
-    
-    .sidebar {
         height: calc(100vh - 56px);
         overflow-y: auto;
     }
@@ -75,6 +71,72 @@ $monthly_stats = $db->query("
     .status-badge {
         font-size: 0.8em;
         padding: 0.4em 0.6em;
+    }
+    
+    /* Print styles for PDF */
+    @media print {
+        /* Hide navigation and buttons */
+        .navbar, .sidebar, .btn, .d-print-none {
+            display: none !important;
+        }
+        
+        /* Reset layout for printing */
+        body, .container-fluid, .row, main.col-md-9 {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: auto !important;
+            overflow: visible !important;
+            display: block !important;
+        }
+        
+        /* Ensure cards don't break across pages */
+        .card {
+            break-inside: avoid;
+            margin-bottom: 20px;
+            border: 1px solid #ddd !important;
+            box-shadow: none !important;
+        }
+        
+        /* Table styles for print */
+        .table {
+            width: 100%;
+            font-size: 12px;
+        }
+        
+        .table th, .table td {
+            padding: 6px;
+        }
+        
+        /* Ensure charts are visible */
+        canvas {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        /* Header styles */
+        .border-bottom {
+            border-bottom: 2px solid #333 !important;
+        }
+        
+        /* Improve text contrast */
+        .text-muted {
+            color: #666 !important;
+        }
+        
+        /* Card header styles */
+        .card-header {
+            background-color: #f8f9fa !important;
+            border-bottom: 1px solid #ddd !important;
+            color: #333 !important;
+        }
+        
+        /* Remove backgrounds for better printing */
+        .bg-primary, .bg-success, .bg-info, .bg-warning {
+            background-color: transparent !important;
+            color: #000 !important;
+            border: 1px solid #000 !important;
+        }
     }
     </style>
     
@@ -213,7 +275,7 @@ $monthly_stats = $db->query("
                 </div>
 
                 <!-- Monthly Statistics -->
-                <div class="card">
+                <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="card-title">Monthly Statistics (Last 6 Months)</h5>
                     </div>
